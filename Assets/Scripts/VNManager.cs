@@ -17,6 +17,7 @@ namespace VN
     {
         public TextMeshProUGUI speakerName;
         public TextMeshProUGUI speakingContent;
+        public TypeWriterEffect typeWriterEffect;
 
         private string filePath = Constants.STORY_PATH;
         private List<ExcelReader.ExcelData> storyData;
@@ -59,10 +60,19 @@ namespace VN
                 Debug.Log("End of Story");
                 return;
             }
-            var data = storyData[currentLine];
-            speakerName.text = data.speaker;
-            speakingContent.text = data.content;
-            currentLine++;
+
+            // 如果正在打字，则直接打字完成
+            if (typeWriterEffect.IsTyping())
+            {
+                typeWriterEffect.CompleteLine();
+            }
+            else
+            {
+                var data = storyData[currentLine];
+                speakerName.text = data.speaker;
+                typeWriterEffect.StartTyping(data.content);
+                currentLine++;
+            }
         }
     }
 }

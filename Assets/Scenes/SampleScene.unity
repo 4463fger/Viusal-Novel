@@ -906,6 +906,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1922945957}
   - component: {fileID: 1922945956}
+  - component: {fileID: 1922945958}
   m_Layer: 0
   m_Name: '[VN Controller]'
   m_TagString: Untagged
@@ -927,6 +928,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speakerName: {fileID: 2109781550}
   speakingContent: {fileID: 1157858904}
+  typeWriterEffect: {fileID: 1922945958}
 --- !u!4 &1922945957
 Transform:
   m_ObjectHideFlags: 0
@@ -944,6 +946,20 @@ Transform:
   - {fileID: 767861224}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1922945958
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1922945955}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 948a70ef02a54d61b4dde997e7593b80, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  textDisPlay: {fileID: 1157858904}
+  waitingSeconds: 0.05
 --- !u!1 &2041052618
 GameObject:
   m_ObjectHideFlags: 0
