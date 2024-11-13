@@ -21,8 +21,10 @@ namespace VN
         /// </summary>
         public struct ExcelData
         {
-            public string speaker;  //说话者名称
-            public string content;  //说话内容
+            public string speakerName;  //说话者名称
+            public string speakingContent;  //说话内容
+            public string avatarImageFileName;  //头像文件名
+            public string vocalAudioFileName;   //音频文件名
         }
 
         /// <summary>
@@ -45,8 +47,10 @@ namespace VN
                         while (reader.Read())
                         {
                             ExcelData data = new ExcelData();
-                            data.speaker = reader.GetString(0);
-                            data.content = reader.GetString(1);
+                            data.speakerName = reader.IsDBNull(0) ? string.Empty : reader.GetValue(0)?.ToString();
+                            data.speakingContent = reader.IsDBNull(1) ? string.Empty : reader.GetValue(1)?.ToString();
+                            data.avatarImageFileName = reader.IsDBNull(2) ? string.Empty : reader.GetValue(2)?.ToString();
+                            data.vocalAudioFileName = reader.IsDBNull(3) ? string.Empty : reader.GetValue(3)?.ToString();
                             excelData.Add(data);
                         }
                     } 

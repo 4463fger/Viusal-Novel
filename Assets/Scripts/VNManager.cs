@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace VN
 {
@@ -18,14 +19,17 @@ namespace VN
         public TextMeshProUGUI speakerName;
         public TextMeshProUGUI speakingContent;
         public TypeWriterEffect typeWriterEffect;
+        public Image avatarImage;
+        public AudioSource vocalAudio;
 
-        private string filePath = Constants.STORY_PATH;
+        private string storyPath = Constants.STROY_PATH;
+        private string defaultStoryFileName = Constants.DEFAULT_STORY_FILE_NAME;
         private List<ExcelReader.ExcelData> storyData;
         private int currentLine = 0;
 
         private void Start()
         {
-            LoadStoryFromFile(filePath);
+            LoadStoryFromFile(storyPath + defaultStoryFileName);
             DisplayNextLine();
         }
 
@@ -46,7 +50,7 @@ namespace VN
             storyData = ExcelReader.ReadExcel(path);
             if (storyData == null || storyData.Count == 0)
             {
-                Debug.LogError("No data found in the file");
+                Debug.LogError(Constants.NO_DATA_FOUND);
             }
         }
 
@@ -57,7 +61,7 @@ namespace VN
         {
             if (currentLine >= storyData.Count)
             {
-                Debug.Log("End of Story");
+                Debug.Log(Constants.END_OF_STORY);
                 return;
             }
 
@@ -68,10 +72,78 @@ namespace VN
             }
             else
             {
-                var data = storyData[currentLine];
-                speakerName.text = data.speaker;
-                typeWriterEffect.StartTyping(data.content);
-                currentLine++;
+                DisplayThisLine();
+            }
+        }
+        
+        void DisplayThisLine()
+        {
+            var data = storyData[currentLine];
+            speakerName.text = data.speakerName;
+            speakingContent.text = data.speakingContent;
+            typeWriterEffect.StartTyping(speakingContent.text);
+            //头像名不为空,更新
+            if (NotNullNorEmpty(data.avatarImageFileName))
+            {
+                UpdateAvatorImage(data.avatarImageFileName);
+            }
+            else
+            {
+                avatarImage.gameObject.SetActive(false);
+            }
+
+            if (NotNullNorEmpty(data.vocalAudioFileName))
+            {
+                PlayerVocalAudio(data.vocalAudioFileName);
+            }
+            currentLine++;
+        }
+        
+        /// <summary>
+        /// 判断是否为空
+        /// </summary>
+        /// <param name="str">需要判断的字符名</param>
+        /// <returns></returns>
+        bool NotNullNorEmpty(string str)
+        {
+            return !string.IsNullOrEmpty(str);
+        }
+        
+        /// <summary>
+        /// 更新头像
+        /// </summary>
+        /// <param name="imageFileName"></param>
+        void UpdateAvatorImage(string imageFileName)
+        {
+            string imagePath = Constants.AVATAR_PATH + imageFileName;
+            Sprite sprite = Resources.Load<Sprite>(imagePath);
+            if (sprite is not null)
+            {
+                avatarImage.sprite = sprite;
+                avatarImage.gameObject.SetActive(true);
+            }
+            else
+            {
+                Debug.LogError(Constants.IMAGE_LOAD_FAILED);
+            }
+        }
+        
+        /// <summary>
+        /// 播放音乐
+        /// </summary>
+        /// <param name="audioFileName"></param>
+        void PlayerVocalAudio(string audioFileName)
+        {
+            string audioPath = Constants.VOCAL_PATH + audioFileName;
+            AudioClip audioClip = Resources.Load<AudioClip>(audioPath);
+            if (audioClip is not null)
+            {
+                vocalAudio.clip = audioClip;
+                vocalAudio.Play();
+            }
+            else
+            {
+                Debug.LogError(Constants.AUDIO_LOAD_FAILED);
             }
         }
     }
