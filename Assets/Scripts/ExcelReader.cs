@@ -25,6 +25,8 @@ namespace VN
             public string speakingContent;  //说话内容
             public string avatarImageFileName;  //头像文件名
             public string vocalAudioFileName;   //音频文件名
+            public string backgroundImageFileName; //背景图片名字
+            public string backgroundMusicFileName; //背景音乐名字
         }
 
         /// <summary>
@@ -51,6 +53,8 @@ namespace VN
                             data.speakingContent = reader.IsDBNull(1) ? string.Empty : reader.GetValue(1)?.ToString();
                             data.avatarImageFileName = reader.IsDBNull(2) ? string.Empty : reader.GetValue(2)?.ToString();
                             data.vocalAudioFileName = reader.IsDBNull(3) ? string.Empty : reader.GetValue(3)?.ToString();
+                            data.backgroundImageFileName = reader.IsDBNull(4) ? string.Empty : reader.GetValue(4)?.ToString();
+                            data.backgroundMusicFileName = reader.IsDBNull(5) ? string.Empty : reader.GetValue(5)?.ToString();
                             excelData.Add(data);
                         }
                     } 

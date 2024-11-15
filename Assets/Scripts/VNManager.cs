@@ -21,11 +21,13 @@ namespace VN
         public TypeWriterEffect typeWriterEffect;
         public Image avatarImage;
         public AudioSource vocalAudio;
+        public Image backgroundImage;
+        public AudioSource backgroundMusic;
 
         private string storyPath = Constants.STROY_PATH;
         private string defaultStoryFileName = Constants.DEFAULT_STORY_FILE_NAME;
         private List<ExcelReader.ExcelData> storyData;
-        private int currentLine = 0;
+        private int currentLine = Constants.DEFAULT_START_LINE;
 
         private void Start()
         {
@@ -91,14 +93,23 @@ namespace VN
             {
                 avatarImage.gameObject.SetActive(false);
             }
-
             if (NotNullNorEmpty(data.vocalAudioFileName))
             {
                 PlayerVocalAudio(data.vocalAudioFileName);
             }
+
+            if (NotNullNorEmpty(data.backgroundImageFileName))
+            {
+                UpdateBackgroundImage(data.backgroundImageFileName);
+            }
+
+            if (NotNullNorEmpty(data.backgroundMusicFileName))
+            {
+                PlayerBackgroundMusic(data.backgroundMusicFileName);
+            }
             currentLine++;
         }
-        
+
         /// <summary>
         /// 判断是否为空
         /// </summary>
@@ -144,6 +155,44 @@ namespace VN
             else
             {
                 Debug.LogError(Constants.AUDIO_LOAD_FAILED);
+            }
+        }
+        
+        /// <summary>
+        /// 更新背景图片
+        /// </summary>
+        /// <param name="imageFileName"></param>
+        private void UpdateBackgroundImage(string imageFileName)
+        {
+            string imagePath = Constants.BACKGROUND_PATH + imageFileName;
+            Sprite sprite = Resources.Load<Sprite>(imagePath);
+            if (sprite is not null)
+            {
+                backgroundImage.sprite = sprite;
+            }
+            else
+            {
+                Debug.LogError(Constants.IMAGE_LOAD_FAILED + imagePath);
+            }
+        }
+
+        /// <summary>
+        /// 播放背景音乐
+        /// </summary>
+        /// <param name="musicFileName"></param>
+        void PlayerBackgroundMusic(string musicFileName)
+        {
+            string musicPath = Constants.MUSIC_PATH + musicFileName;
+            AudioClip audioClip = Resources.Load<AudioClip>(musicPath);
+            if (audioClip is not null)
+            {
+                backgroundMusic.clip = audioClip;
+                backgroundMusic.Play();
+                backgroundMusic.loop = true;
+            }
+            else
+            {
+                Debug.LogError(Constants.MUSIC_LOAD_FAILED + musicPath);
             }
         }
     }
