@@ -41,7 +41,7 @@ namespace VN
             textDisPlay.text = text;
             textDisPlay.maxVisibleCharacters = 0; //可见字符的数量
 
-            for (int i = 0; i < text.Length; i++)
+            for (int i = 0; i <= text.Length; i++)
             {
                 textDisPlay.maxVisibleCharacters = i;
                 yield return new WaitForSeconds(waitingSeconds);
