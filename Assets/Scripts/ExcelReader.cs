@@ -27,6 +27,10 @@ namespace VN
             public string vocalAudioFileName;   //音频文件名
             public string backgroundImageFileName; //背景图片名字
             public string backgroundMusicFileName; //背景音乐名字
+            public string character1Action; //角色1的行为
+            public string character1ImageFileName;//角色1的图片名字
+            public string character2Action; //角色2的行为
+            public string character2ImageFileName; //角色2的图片名字
         }
 
         /// <summary>
@@ -55,6 +59,10 @@ namespace VN
                             data.vocalAudioFileName = reader.IsDBNull(3) ? string.Empty : reader.GetValue(3)?.ToString();
                             data.backgroundImageFileName = reader.IsDBNull(4) ? string.Empty : reader.GetValue(4)?.ToString();
                             data.backgroundMusicFileName = reader.IsDBNull(5) ? string.Empty : reader.GetValue(5)?.ToString();
+                            data.character1Action = reader.IsDBNull(6) ? string.Empty : reader.GetValue(6)?.ToString();
+                            data.character1ImageFileName = reader.IsDBNull(7) ? string.Empty : reader.GetValue(7)?.ToString();
+                            data.character2Action = reader.IsDBNull(8) ? string.Empty : reader.GetValue(8)?.ToString();
+                            data.character2ImageFileName = reader.IsDBNull(9) ? string.Empty : reader.GetValue(9)?.ToString();
                             excelData.Add(data);
                         }
                     } 

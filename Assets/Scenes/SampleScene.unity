@@ -1067,6 +1067,8 @@ MonoBehaviour:
   vocalAudio: {fileID: 2119584835}
   backgroundImage: {fileID: 728720077}
   backgroundMusic: {fileID: 697242461}
+  CharacterImage1: {fileID: 2041052620}
+  CharacterImage2: {fileID: 774024844}
 --- !u!4 &1922945957
 Transform:
   m_ObjectHideFlags: 0
