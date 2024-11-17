@@ -6,11 +6,11 @@
 * └──────────────────────────────────┘
 */
 
-using System;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
+using DG.Tweening;
 
 namespace VN
 {
@@ -33,6 +33,7 @@ namespace VN
 
         private void Start()
         {
+            Init();
             LoadStoryFromFile(storyPath + defaultStoryFileName);
             DisplayNextLine();
         }
@@ -43,6 +44,17 @@ namespace VN
             {
                 DisplayNextLine();
             }
+        }
+
+        /// <summary>
+        /// 初始化
+        /// </summary>
+        private void Init()
+        {
+            avatarImage.gameObject.SetActive(false);
+            backgroundImage.gameObject.SetActive(false);
+            CharacterImage1.gameObject.SetActive(false);
+            CharacterImage2.gameObject.SetActive(false);
         }
 
         /// <summary>
@@ -110,12 +122,12 @@ namespace VN
 
             if (NotNullNorEmpty(data.character1Action))
             {
-                UpdateCharacterImage(data.character1Action, data.character1ImageFileName,CharacterImage1);
+                UpdateCharacterImage(data.character1Action, data.character1ImageFileName,CharacterImage1,data.CoordinateX1);
             }
 
             if (NotNullNorEmpty(data.character2Action))
             {
-                UpdateCharacterImage(data.character2Action, data.character2ImageFileName,CharacterImage2);
+                UpdateCharacterImage(data.character2Action, data.character2ImageFileName,CharacterImage2,data.CoordinateX2);
             }
             currentLine++;
         }
@@ -171,20 +183,52 @@ namespace VN
             PlayAudio(musicPath,backgroundMusic,true);
         }
         
-        void UpdateCharacterImage(string action, string imageFileName,Image characterImage)
+        /// <summary>
+        /// 更新角色立绘
+        /// </summary>
+        /// <param name="action">动作</param>
+        /// <param name="imageFileName">图片名</param>
+        /// <param name="characterImage">图片</param>
+        /// <param name="x">x坐标</param>
+        void UpdateCharacterImage(string action, string imageFileName, Image characterImage, string x)
         {
-            if (action.StartsWith(Constants.characterActionAppearAt)) // 解析appear(x,y)总做并在(x,y)显示角色立绘
+            // 解析action行为
+            //角色出现
+            if (action.StartsWith(Constants.APPEAR_AT)) 
             {
                 string imagePath = Constants.CHARACTER_PATH + imageFileName;
-                UpdateImage(imagePath,characterImage);
+                //检测是否读取到X坐标
+                if (NotNullNorEmpty(x))
+                {
+                    UpdateImage(imagePath,characterImage);
+                    var newPosition = new Vector2(float.Parse(x), characterImage.rectTransform.anchoredPosition.y);
+                    characterImage.rectTransform.anchoredPosition = newPosition;
+                    characterImage.DOFade(1, Constants.DURATION_TIME).From(0);
+                }
+                else
+                {
+                    Debug.LogError(Constants.COORDINATE_MISSING);
+                }
             }
-            else if (action == Constants.characterActionDisappear) // 隐藏角色立绘
+            else if (action == Constants.DISAPPEAR) // 隐藏角色立绘
             {
-                characterImage.gameObject.SetActive(false);
+                //OnComplete: 动画结束后调用
+                characterImage.DOFade(0,Constants.DURATION_TIME).OnComplete(() =>
+                {
+                    characterImage.gameObject.SetActive(false);
+                });
             }
-            else if (action.StartsWith(Constants.characterActionMoveTo)) // 解析moveTo(x,y)动作并移动角色立绘到(x,y)位置
+            //将角色移动到指定位置
+            else if (action.StartsWith(Constants.MOVE_TO))
             {
-                
+                if (NotNullNorEmpty(x))
+                {
+                    characterImage.rectTransform.DOAnchorPosX(float.Parse(x), Constants.DURATION_TIME);
+                }
+                else
+                {
+                    Debug.LogError(Constants.COORDINATE_MISSING);
+                }
             }
         }
         
@@ -224,14 +268,7 @@ namespace VN
             }
             else
             {
-                if (audioSource == vocalAudio)
-                {
-                    Debug.LogError(Constants.AUDIO_LOAD_FAILED + audioPath);
-                }
-                else if(audioSource == backgroundMusic)
-                {
-                    Debug.LogError(Constants.MUSIC_LOAD_FAILED + audioPath);
-                }
+                Debug.LogError(Constants.AUDIO_LOAD_FAILED + audioPath);
             }
         }
     }

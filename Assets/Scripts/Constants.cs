@@ -22,17 +22,17 @@ namespace VN
         public static string IMAGE_LOAD_FAILED = "Failed to load image: ";
         
         public static string VOCAL_PATH = "audio/vocal/";
-        public static string AUDIO_LOAD_FAILED = "Failed to load audio: ";
-
         public static string MUSIC_PATH = "audio/music/";
-        public static string MUSIC_LOAD_FAILED = "Failed to load music: ";
+        public static string AUDIO_LOAD_FAILED = "Failed to load audio: ";
         
         public static string NO_DATA_FOUND = "No data found";
         public static string END_OF_STORY = "End of story";
         public static float DEFAULT_WAITING_SECONDS = 0.05f;    //默认打字机速度
 
-        public static string characterActionAppearAt = "appearAt";
-        public static string characterActionDisappear = "disappear";
-        public static string characterActionMoveTo = "moveTo";
+        public static string APPEAR_AT = "appearAt"; 
+        public static string DISAPPEAR = "disappear";
+        public static string MOVE_TO = "moveTo";
+        public static int DURATION_TIME = 1;    //动画的持续效果
+        public static string COORDINATE_MISSING = "Coordinate missing"; //X坐标缺失报错
     }
 }
