@@ -11,6 +11,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using DG.Tweening;
+using UnityEngine.PlayerLoop;
+using UnityEngine.Serialization;
 
 namespace VN
 {
@@ -23,19 +25,22 @@ namespace VN
         public AudioSource vocalAudio;
         public Image backgroundImage;
         public AudioSource backgroundMusic;
-        public Image CharacterImage1;
-        public Image CharacterImage2;
+        public Image characterImage1;
+        public Image characterImage2;
 
+        public GameObject choicePanel;
+        public Button choiceButton1;
+        public Button choiceButton2;
+        
         private string storyPath = Constants.STROY_PATH;
         private string defaultStoryFileName = Constants.DEFAULT_STORY_FILE_NAME;
+        private string excelFileExtension = Constants.EXCEL_FILE_EXTENSION; // 文件后缀名
         private List<ExcelReader.ExcelData> storyData;
         private int currentLine = Constants.DEFAULT_START_LINE;
 
         private void Start()
         {
-            Init();
-            LoadStoryFromFile(storyPath + defaultStoryFileName);
-            DisplayNextLine();
+            InitializeAndLoadStory(defaultStoryFileName);
         }
 
         private void Update()
@@ -46,23 +51,33 @@ namespace VN
             }
         }
 
+        private void InitializeAndLoadStory(string fileName)
+        {
+            Init();
+            LoadStoryFromFile(fileName);
+            DisplayNextLine();
+        }
+        
         /// <summary>
         /// 初始化
         /// </summary>
         private void Init()
         {
+            currentLine = Constants.DEFAULT_START_LINE; //当前初始化为默认行
             avatarImage.gameObject.SetActive(false);
             backgroundImage.gameObject.SetActive(false);
-            CharacterImage1.gameObject.SetActive(false);
-            CharacterImage2.gameObject.SetActive(false);
+            characterImage1.gameObject.SetActive(false);
+            characterImage2.gameObject.SetActive(false);
+            choicePanel.SetActive(false);
         }
 
         /// <summary>
         /// 从Excel文件中读取文本
         /// </summary>
         /// <param name="path">文件存储路径</param>
-        void LoadStoryFromFile(string path)
+        void LoadStoryFromFile(string fileName)
         {
+            var path = storyPath + fileName + excelFileExtension;   //存储路径 + 文件名 + 文件后缀名
             storyData = ExcelReader.ReadExcel(path);
             if (storyData == null || storyData.Count == 0)
             {
@@ -75,12 +90,19 @@ namespace VN
         /// </summary>
         void DisplayNextLine()
         {
-            if (currentLine >= storyData.Count)
+            if (currentLine == storyData.Count - 1)
             {
-                Debug.Log(Constants.END_OF_STORY);
-                return;
+                if (storyData[currentLine].speakerName == Constants.END_OF_STORY)
+                {
+                    Debug.Log(Constants.END_OF_STORY);
+                    return;
+                }
+                if (storyData[currentLine].speakerName == Constants.CHOICE)
+                {
+                    ShowChoices();
+                    return;
+                }
             }
-
             // 如果正在打字，则直接打字完成
             if (typeWriterEffect.IsTyping())
             {
@@ -122,12 +144,12 @@ namespace VN
 
             if (NotNullNorEmpty(data.character1Action))
             {
-                UpdateCharacterImage(data.character1Action, data.character1ImageFileName,CharacterImage1,data.CoordinateX1);
+                UpdateCharacterImage(data.character1Action, data.character1ImageFileName,characterImage1,data.coordinateX1);
             }
 
             if (NotNullNorEmpty(data.character2Action))
             {
-                UpdateCharacterImage(data.character2Action, data.character2ImageFileName,CharacterImage2,data.CoordinateX2);
+                UpdateCharacterImage(data.character2Action, data.character2ImageFileName,characterImage2,data.coordinateX2);
             }
             currentLine++;
         }
@@ -141,7 +163,22 @@ namespace VN
         {
             return !string.IsNullOrEmpty(str);
         }
-        
+
+        /// <summary>
+        /// 显示选择
+        /// </summary>
+        void ShowChoices()
+        {
+            var data = storyData[currentLine];
+            choiceButton1.onClick.RemoveAllListeners();
+            choiceButton2.onClick.RemoveAllListeners();
+            choicePanel.SetActive(true);
+            choiceButton1.GetComponentInChildren<TextMeshProUGUI>().text = data.speakingContent;
+            choiceButton1.onClick.AddListener(() => InitializeAndLoadStory(data.avatarImageFileName));
+            choiceButton2.GetComponentInChildren<TextMeshProUGUI>().text = data.vocalAudioFileName;
+            choiceButton2.onClick.AddListener(() => InitializeAndLoadStory(data.backgroundImageFileName));
+
+        }
         /// <summary>
         /// 更新头像
         /// </summary>
