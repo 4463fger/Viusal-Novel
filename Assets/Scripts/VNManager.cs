@@ -1,11 +1,12 @@
 ﻿/*
-* ┌──────────────────────────────────┐
-* │  描    述: 主控制器               
-* │  类    名: VNManager.cs       
-* │  创 建 人: 4463fger                 
-* └──────────────────────────────────┘
-*/
+ * ┌──────────────────────────────────┐
+ * │  描    述: 主控制器
+ * │  类    名: VNManager.cs
+ * │  创 建 人: 4463fger
+ * └──────────────────────────────────┘
+ */
 
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -31,10 +32,13 @@ namespace VN
         public GameObject choicePanel;
         public Button choiceButton1;
         public Button choiceButton2;
-        
-        private string storyPath = Constants.STROY_PATH;
-        private string defaultStoryFileName = Constants.DEFAULT_STORY_FILE_NAME;
-        private string excelFileExtension = Constants.EXCEL_FILE_EXTENSION; // 文件后缀名
+
+        public GameObject bottomButtons;
+        public Button autoButton;
+
+        private readonly string storyPath = Constants.STROY_PATH;
+        private readonly string defaultStoryFileName = Constants.DEFAULT_STORY_FILE_NAME;
+        private readonly string excelFileExtension = Constants.EXCEL_FILE_EXTENSION; // 文件后缀名
         private List<ExcelReader.ExcelData> storyData;
         private int currentLine = Constants.DEFAULT_START_LINE;
 
@@ -47,7 +51,10 @@ namespace VN
         {
             if (Input.GetMouseButtonDown(0))
             {
-                DisplayNextLine();
+                if (!IsHittingBottomButtons())
+                {
+                    DisplayNextLine();
+                }
             }
         }
 
@@ -57,7 +64,7 @@ namespace VN
             LoadStoryFromFile(fileName);
             DisplayNextLine();
         }
-        
+
         /// <summary>
         /// 初始化
         /// </summary>
@@ -69,6 +76,7 @@ namespace VN
             characterImage1.gameObject.SetActive(false);
             characterImage2.gameObject.SetActive(false);
             choicePanel.SetActive(false);
+            autoButton.onClick.AddListener(OnAutoButtonClick);
         }
 
         /// <summary>
@@ -77,7 +85,7 @@ namespace VN
         /// <param name="path">文件存储路径</param>
         void LoadStoryFromFile(string fileName)
         {
-            var path = storyPath + fileName + excelFileExtension;   //存储路径 + 文件名 + 文件后缀名
+            var path = storyPath + fileName + excelFileExtension; //存储路径 + 文件名 + 文件后缀名
             storyData = ExcelReader.ReadExcel(path);
             if (storyData == null || storyData.Count == 0)
             {
@@ -97,12 +105,14 @@ namespace VN
                     Debug.Log(Constants.END_OF_STORY);
                     return;
                 }
+
                 if (storyData[currentLine].speakerName == Constants.CHOICE)
                 {
                     ShowChoices();
                     return;
                 }
             }
+
             // 如果正在打字，则直接打字完成
             if (typeWriterEffect.IsTyping())
             {
@@ -113,7 +123,7 @@ namespace VN
                 DisplayThisLine();
             }
         }
-        
+
         void DisplayThisLine()
         {
             var data = storyData[currentLine];
@@ -129,14 +139,17 @@ namespace VN
             {
                 avatarImage.gameObject.SetActive(false);
             }
+
             if (NotNullNorEmpty(data.vocalAudioFileName))
             {
                 PlayerVocalAudio(data.vocalAudioFileName);
             }
+
             if (NotNullNorEmpty(data.backgroundImageFileName))
             {
                 UpdateBackgroundImage(data.backgroundImageFileName);
             }
+
             if (NotNullNorEmpty(data.backgroundMusicFileName))
             {
                 PlayerBackgroundMusic(data.backgroundMusicFileName);
@@ -144,13 +157,16 @@ namespace VN
 
             if (NotNullNorEmpty(data.character1Action))
             {
-                UpdateCharacterImage(data.character1Action, data.character1ImageFileName,characterImage1,data.coordinateX1);
+                UpdateCharacterImage(data.character1Action, data.character1ImageFileName, characterImage1,
+                    data.coordinateX1);
             }
 
             if (NotNullNorEmpty(data.character2Action))
             {
-                UpdateCharacterImage(data.character2Action, data.character2ImageFileName,characterImage2,data.coordinateX2);
+                UpdateCharacterImage(data.character2Action, data.character2ImageFileName, characterImage2,
+                    data.coordinateX2);
             }
+
             currentLine++;
         }
 
@@ -177,8 +193,8 @@ namespace VN
             choiceButton1.onClick.AddListener(() => InitializeAndLoadStory(data.avatarImageFileName));
             choiceButton2.GetComponentInChildren<TextMeshProUGUI>().text = data.vocalAudioFileName;
             choiceButton2.onClick.AddListener(() => InitializeAndLoadStory(data.backgroundImageFileName));
-
         }
+
         /// <summary>
         /// 更新头像
         /// </summary>
@@ -188,7 +204,7 @@ namespace VN
             string imagePath = Constants.AVATAR_PATH + imageFileName;
             UpdateImage(imagePath, avatarImage);
         }
-        
+
         /// <summary>
         /// 播放音效
         /// </summary>
@@ -196,7 +212,7 @@ namespace VN
         void PlayerVocalAudio(string audioFileName)
         {
             string audioPath = Constants.VOCAL_PATH + audioFileName;
-            PlayAudio(audioPath,vocalAudio,false);
+            PlayAudio(audioPath, vocalAudio, false);
         }
 
 
@@ -217,9 +233,9 @@ namespace VN
         void PlayerBackgroundMusic(string musicFileName)
         {
             string musicPath = Constants.MUSIC_PATH + musicFileName;
-            PlayAudio(musicPath,backgroundMusic,true);
+            PlayAudio(musicPath, backgroundMusic, true);
         }
-        
+
         /// <summary>
         /// 更新角色立绘
         /// </summary>
@@ -231,13 +247,13 @@ namespace VN
         {
             // 解析action行为
             //角色出现
-            if (action.StartsWith(Constants.APPEAR_AT)) 
+            if (action.StartsWith(Constants.APPEAR_AT))
             {
                 string imagePath = Constants.CHARACTER_PATH + imageFileName;
                 //检测是否读取到X坐标
                 if (NotNullNorEmpty(x))
                 {
-                    UpdateImage(imagePath,characterImage);
+                    UpdateImage(imagePath, characterImage);
                     var newPosition = new Vector2(float.Parse(x), characterImage.rectTransform.anchoredPosition.y);
                     characterImage.rectTransform.anchoredPosition = newPosition;
                     characterImage.DOFade(1, Constants.DURATION_TIME).From(0);
@@ -250,7 +266,7 @@ namespace VN
             else if (action == Constants.DISAPPEAR) // 隐藏角色立绘
             {
                 //OnComplete: 动画结束后调用
-                characterImage.DOFade(0,Constants.DURATION_TIME).OnComplete(() =>
+                characterImage.DOFade(0, Constants.DURATION_TIME).OnComplete(() =>
                 {
                     characterImage.gameObject.SetActive(false);
                 });
@@ -268,7 +284,7 @@ namespace VN
                 }
             }
         }
-        
+
         /// <summary>
         /// 更新图片
         /// </summary>
@@ -287,7 +303,7 @@ namespace VN
                 Debug.LogError(Constants.IMAGE_LOAD_FAILED + imagePath);
             }
         }
-        
+
         /// <summary>
         /// 播放音频
         /// </summary>
@@ -306,6 +322,50 @@ namespace VN
             else
             {
                 Debug.LogError(Constants.AUDIO_LOAD_FAILED + audioPath);
+            }
+        }
+
+        /// <summary>
+        /// 判断是否点击了底部按钮
+        /// </summary>
+        /// <returns></returns>
+        bool IsHittingBottomButtons()
+        {
+            // 判断屏幕坐标点是否在指定的矩形变换区域内
+            return RectTransformUtility.RectangleContainsScreenPoint(
+                bottomButtons.GetComponent<RectTransform>(),// 获取底部按钮区域的矩形变换组件
+                Input.mousePosition,// 获取鼠标位置
+                null  // 使用默认的摄像机
+            );
+        }
+        
+        private bool isAutoPlay = false;
+        
+        void OnAutoButtonClick()
+        {
+            isAutoPlay = !isAutoPlay;
+            UpdateButtonImage(isAutoPlay? Constants.AUTO_ON : Constants.AUTO_OFF,autoButton);
+            if (isAutoPlay)
+            {
+                StartCoroutine(StartAutoPlay());
+            }
+        }
+
+        private void UpdateButtonImage(string imageFileName, Button button)
+        {
+            string imagePath = Constants.BUTTON_PATH + imageFileName;
+            UpdateImage(imagePath,button.image);
+        }
+
+        private IEnumerator StartAutoPlay()
+        {
+            while (isAutoPlay)
+            {
+                if (!typeWriterEffect.IsTyping())
+                {
+                    DisplayNextLine();
+                }
+                yield return new WaitForSeconds(Constants.DEFAULT_WAITING_SECONDS);
             }
         }
     }

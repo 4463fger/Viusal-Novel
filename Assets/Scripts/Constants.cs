@@ -20,8 +20,12 @@ namespace VN
         
         public static string AVATAR_PATH = "image/avatar/"; 
         public static string BACKGROUND_PATH = "image/background/";
+        public static string BUTTON_PATH = "image/button/";
         public static string CHARACTER_PATH = "image/character/";
         public static string IMAGE_LOAD_FAILED = "Failed to load image: ";
+
+        public static string AUTO_ON = "autoplayon";
+        public static string AUTO_OFF = "autoplayoff";
         
         public static string VOCAL_PATH = "audio/vocal/";
         public static string MUSIC_PATH = "audio/music/";
@@ -30,7 +34,7 @@ namespace VN
         public static string NO_DATA_FOUND = "No data found";
         public static string END_OF_STORY = "End of story";
         public static string CHOICE = "choice";
-        public static float DEFAULT_WAITING_SECONDS = 0.05f;    //默认打字机速度
+        public static float DEFAULT_WAITING_SECONDS = 0.1f;    //默认打字机速度
 
         public static string APPEAR_AT = "appearAt"; 
         public static string DISAPPEAR = "disappear";
